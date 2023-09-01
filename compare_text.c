@@ -45,7 +45,7 @@ int compareFiles(int fd1, int fd2) {
             return 2; // different
         }
 
-        //EOF
+        // EOF
         if (bytesRead1 == 0 && bytesRead2 == 0) {
             return is_similar ? 3 : 1; // similar or identical
         }
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
         return 2;
     }
 
-    //open the fds
+    // Open the fds
     int fd1 = open(argv[1], O_RDONLY);
     if (fd1 == -1) {
         sysCallError("open");
@@ -84,10 +84,10 @@ int main(int argc, char *argv[]) {
         sysCallError("open");
     }
 
-    //get result of the files comparing
+    // Get result of the files comparing
     int result = compareFiles(fd1, fd2);
 
-    //close the fds
+    // Close the fds
     if(close(fd1) == -1) {
         if(close(fd2) == -1) {
             sysCallError("close");
