@@ -28,9 +28,9 @@ typedef struct {
  * @param err The standard saved error fd
  */
 void errorIn(char *syscall, int err) {
-    // save the corrent error fd
+    // Save the corrent error fd
     int tempErr = dup(STDERR_FILENO);
-    // redirect errors to program console
+    // Redirect errors to program console
     dup2(err, STDERR_FILENO);
 
     char errorMsg[256];
@@ -40,7 +40,7 @@ void errorIn(char *syscall, int err) {
 
     if(write(2, errorMsg, strlen(errorMsg)) == -1){}
 
-    // redirect back to errors.txt
+    // Redirect back to errors.txt
     dup2(tempErr, STDERR_FILENO);
     close(tempErr);
 }
@@ -159,7 +159,7 @@ char *findCFile(char *dirPath, int err) {
         errorIn("opendir", err);
     }
 
-    // iterate through the directory and search for the c file.
+    // Iterate through the directory and search for the c file.
     while ((dirEntry = readdir(dir)) != NULL) {
         if (dirEntry->d_type == DT_REG && strlen(dirEntry->d_name) >= 2 &&
             strcmp(dirEntry->d_name + strlen(dirEntry->d_name) - 2, ".c") == 0) {
@@ -168,7 +168,7 @@ char *findCFile(char *dirPath, int err) {
             return strdup(filePath);
         }
     }
-    // didn't find a c file.
+    // Didn't find a c file.
     closedir(dir);
     return NULL;
 }
@@ -347,7 +347,6 @@ int runProgram(const char *programPath, const char *inputFilePath, const char *o
     }
 }
 
-
 /**
  * Compares the contents of two files and returns the result of the comparison.
  * @param file1Path The path to the first file to compare.
@@ -453,8 +452,8 @@ void programLogic(ConfigData configData, int resultFile, int err) {
 
     // iterate through the user's directory
     while ((dirEntry = readdir(dir)) != NULL) {
-        // the readdir function returns also the directories "." and ".." which we want to avoid.
-        // we also want to avoid from file that are not directories.
+        // The readdir function returns also the directories "." and ".." which we want to avoid.
+        // We also want to avoid from file that are not directories.
         if (dirEntry->d_type == DT_DIR && strcmp(dirEntry->d_name, ".") != 0 && strcmp(dirEntry->d_name, "..") != 0) {
             // concat the path of the user's directory with one of the directories inside it
             char subfolderPath[MAX_PATH_LENGTH];
@@ -462,35 +461,35 @@ void programLogic(ConfigData configData, int resultFile, int err) {
             strcat(subfolderPath, "/");
             strcat(subfolderPath, dirEntry->d_name);
 
-            // search C file.
+            // Search C file.
             char *cFilePath = findCFile(subfolderPath, err);
 
-            // no C file
+            // No C file
             if (cFilePath == NULL) {
                 writeResult(resultFile, dirEntry->d_name, 0, "NO_C_FILE");
             } else {
-                // compile C file.
+                // Compile C file.
                 char exeFilePath[MAX_PATH_LENGTH];
 
                 int compilationResult = compileCFile(cFilePath, exeFilePath, err);
 
-                // run C file.
+                // Run C file.
                 char programOutput[MAX_LINE_LENGTH] = "user-output.txt";
                 char programPath[MAX_PATH_LENGTH];
                 strcpy(programPath, exeFilePath);
                 int runningTime = runProgram(programPath, configData.inputFilePath, programOutput, err);
 
-                // compare between the user's output and the expected output.
+                // Compare between the user's output and the expected output.
                 int compareResult = compareFiles(configData.outputFilePath, programOutput, err);
 
                 // Calculate the score and write to results.csv file
                 calcScore(resultFile, dirEntry->d_name, compareResult, runningTime, compilationResult);
 
-                // delete the user's outputput file
+                // Delete the user's outputput file
                 if (remove(programOutput) == -1) {
                     errorIn("remove", err);
                 }
-                // delete compiled file
+                // Delete compiled file
                 deleteExeFile(exeFilePath, err);
             }
         }
@@ -518,7 +517,7 @@ void autoCheckGrader(const char *configFilePath) {
     // Extract configuration data from file
     ConfigData configData = configDataExtraction(configFilePath);
 
-    // validate configuration file data
+    // Validate configuration file data
     checkDirExist(configData);
     checkFilesExist(configData);
 
@@ -528,10 +527,10 @@ void autoCheckGrader(const char *configFilePath) {
         criticalError("open");
     }
 
-    // saving the standard error fd
+    // Saving the standard error fd
     int err = dup(STDERR_FILENO);
 
-    // open errors output file
+    // Open errors output file
     int errorsFile = open("errors.txt", O_CREAT | O_RDWR | O_APPEND, 0777);
     if (errorsFile < 0) {
         criticalError("open");
@@ -549,7 +548,7 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    //run the program
+    // Run the program
     autoCheckGrader(argv[1]);
 
     return 0;
