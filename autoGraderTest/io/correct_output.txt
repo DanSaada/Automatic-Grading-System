@@ -1,0 +1,2 @@
+Please enter two numbers
+7
